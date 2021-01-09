@@ -32,7 +32,7 @@ while true do
         print("Input the TurtleID (the one your tutle shows)")
         local botId = tonumber(read())
         print("Sending pair packet...")
-        rednet.send(id,"turtle_pair")
+        rednet.send(botId,"turtle_pair")
         print("Waiting for confirmation...")
         local id,msg,n = rednet.receive()
         while not (msg == "turtle_confirm" and id == botId) do
