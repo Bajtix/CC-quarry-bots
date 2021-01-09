@@ -38,7 +38,7 @@ while true do
         while not (msg == "turtle_confirm" and id == botId) do
             id,msg,n = rednet.receive()
         end
-        print("Paired with " .. id .. " and sent confirmation packet.")
+        print("Paired with " .. botId .. " and sent confirmation packet.")
 
     elseif c == 2 then
 
