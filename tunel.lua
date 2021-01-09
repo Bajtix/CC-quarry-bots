@@ -82,7 +82,7 @@ print("by Bajtix_One")
 rednet.open("right")
 
 while paired_pc == -1 do
-    print("Pairing with a tablet. The ID is " .. os.getComputerID)
+    print("Pairing with a tablet. The ID is " .. os.getComputerID())
 
     local id,msg,n = rednet.receive()
     while not msg == "turtle_pair" do
