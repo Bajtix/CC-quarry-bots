@@ -2,6 +2,17 @@ local refuelAutomatically = true
 local running = false
 local paired_pc = -1
 
+local function getInv()
+    local items = {}
+    for iw=1,16 do
+        if turtle.getItemCount(iw) > 0 then      
+            items[iw] = turtle.getItemDetail(iw)
+        end
+    end
+
+    return items
+end
+
 local function dig() --digs a single iteration
     --dig a up and down stuff
     if turtle.detect() then
@@ -93,8 +104,14 @@ local function sendData()
     local data = {}
     data["fuel"] = turtle.getFuelLevel()
     data["working"] = running
+    data["inv"] = getInv()
     local mmm = textutils.serialize(data)
     rednet.send(paired_pc,mmm)
+end
+
+local function unpair()
+    paired_pc = -1
+    print("Unpaired")
 end
 
 local function interpret(cmd)
@@ -110,6 +127,8 @@ local function interpret(cmd)
 
     if cmd == "turtle_send_data" then sendData() end
     if cmd == "turtle_refuel" then drop(true) end
+
+    if cmd == "tutle_unpair" then unpair() end
 end
 
 
@@ -120,6 +139,19 @@ local function digloop()
 end
 
 local function receive()
+    while paired_pc == -1 do
+        print("Pairing with a tablet. The ID is " .. os.getComputerID())
+    
+        local id,msg,n = rednet.receive()
+        while not msg == "turtle_pair" do
+            id,msg,n = rednet.receive()  
+        end
+        paired_pc = id
+        print("Paired with " .. paired_pc .. " and sent confirmation packet.")
+        rednet.send(paired_pc,"turtle_confirm")
+    end
+
+
     id,msg,n = rednet.receive()
 
     if id == paired_pc then
@@ -134,17 +166,7 @@ print("by Bajtix_One")
 
 rednet.open("right")
 
-while paired_pc == -1 do
-    print("Pairing with a tablet. The ID is " .. os.getComputerID())
 
-    local id,msg,n = rednet.receive()
-    while not msg == "turtle_pair" do
-        id,msg,n = rednet.receive()  
-    end
-    paired_pc = id
-    print("Paired with " .. paired_pc .. " and sent confirmation packet.")
-    rednet.send(paired_pc,"turtle_confirm")
-end
 
 while true do
     if running then 
